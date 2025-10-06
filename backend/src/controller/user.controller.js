@@ -12,3 +12,7 @@ const generateAccessRefreshToken=async(userId)=>{
         throw new ApiError(500,"some error ouccured in generating access token and refresh token")
     }
 }
+
+export default {
+    generateAccessRefreshToken,
+}
