@@ -13,6 +13,9 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 import userRoutes from "./Routes/user.routes.js"
+import wheatherRoutes from "./Routes/wheather.routes.js"
 app.use("/api/v1/users",userRoutes);
+app.use("/api/v1/wheather",wheatherRoutes);
+
 
 export {app}

@@ -1,7 +1,7 @@
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { asynchandler } from "../utils/AsyncHandler";
-
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asynchandler } from "../utils/AsyncHandler.js";
+import axios from "axios"
 const getwheatherDetails=asynchandler(async(req,res)=>{
     const {city}=req.query;
     if(!city || city.trim()===''){
