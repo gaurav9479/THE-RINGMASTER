@@ -2,20 +2,30 @@ import User from "../models/user.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asynchandler } from "../utils/AsyncHandler.js"
-const generateAccessRefreshToken=async(userId)=>{
-    try{
-        const user=await User.findById(userId)
-        const accesstoken=user.generateAccessToken()
-        const refreshtoken=user.generateRefreshToken()
-        user.refreshtoken=refreshtoken
-        await user.save({validateBeforeSave:false})
-        return(accesstoken,refreshtoken)
-    }catch(error){
-        throw new ApiError(500,"some error ouccured in generating access token and refresh token")
+import dotenv from "dotenv"
+dotenv.config();
+const generateAccessRefreshToken = async (userId) => {
+    
+    try {
+        const user = await User.findById(userId);
+        if(!user){
+            throw new ApiError (404,"user not found while generating token")
+        }
+        
+        const accesstoken = user.generateAccessToken();
+        const refreshtoken = user.generateRefreshToken();
+        user.refreshtoken = refreshtoken;
+        await user.save({ validateBeforeSave: false });
+        return { accesstoken, refreshtoken }; 
+    } catch (error) {
+        console.log(error); 
+        throw new ApiError(500, "Some error occurred in generating access token and refresh token");
     }
-}
+};
+
 const registerUser=asynchandler(async(req,res)=>{
     const{UserName,email,fullname,phone,password}=req.body
+    console.log("getting info",req.body)
     if([UserName,email,fullname,phone,password].some((field)=>field?.trim()==="")){
         throw new ApiError(400,"all fields are required")
     }
@@ -36,7 +46,10 @@ const registerUser=asynchandler(async(req,res)=>{
     if(!createdUser){
         throw new ApiError(500,"some went wrong while creating the user")
     }
-    return res.status(201).json(new ApiResponse(200,createdUser,"user created sucessfully"))
+    return res
+    .status(201)
+
+    .json(new ApiResponse(200,createdUser,"user created sucessfully"))
 })
 const loginUser=asynchandler(async(req,res)=>{
     const {phone,password}=req.body;
@@ -52,7 +65,7 @@ const loginUser=asynchandler(async(req,res)=>{
         throw new ApiError(401,"password in correct")
     }
     const {accesstoken,refreshtoken}=await generateAccessRefreshToken(user._id)
-    const loggedInUser=await User.findById(user._id).select("-password","-refreshtoken")
+    const loggedInUser=await User.findById(user._id).select("-password -refreshtoken")
     const options={httpOnly:true,secure:true};
     return res
         .status(200)
@@ -79,13 +92,13 @@ const logoutUser=asynchandler(async(req,res)=>{
     }
     return res
     .status(200)
-    .clearCookie("accessToken",options)
-    .clearCookie("refresToken",options)
+    .clearCookie("accesstoken",options)
+    .clearCookie("refreshtoken",options)
     .json(new ApiResponse(200,{},"user loggedout"))
 })
 
 
-export default {
+export {
     generateAccessRefreshToken,
     registerUser,
     loginUser,
