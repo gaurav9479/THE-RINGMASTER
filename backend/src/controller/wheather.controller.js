@@ -2,6 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asynchandler } from "../utils/AsyncHandler.js";
 import axios from "axios"
+
 const getwheatherDetails=asynchandler(async(req,res)=>{
     const {city}=req.query;
     if(!city || city.trim()===''){
@@ -15,7 +16,7 @@ const getwheatherDetails=asynchandler(async(req,res)=>{
 
     }
     const {lat,lon}=mapresponse.data[0];
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`;
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.OPENWEATHER_API_KEY}`;
     const wheatherResponse=await axios.get(weatherUrl);
     const data=wheatherResponse.data;
     return res.status(200).json(
@@ -32,6 +33,6 @@ const getwheatherDetails=asynchandler(async(req,res)=>{
         },
         "Weather details fetched successfully"
     )
-  );
+    );
 })
 export {getwheatherDetails}

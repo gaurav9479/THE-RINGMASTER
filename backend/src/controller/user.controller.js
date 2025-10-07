@@ -2,8 +2,7 @@ import User from "../models/user.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asynchandler } from "../utils/AsyncHandler.js"
-import dotenv from "dotenv"
-dotenv.config();
+
 const generateAccessRefreshToken = async (userId) => {
     
     try {
@@ -11,7 +10,7 @@ const generateAccessRefreshToken = async (userId) => {
         if(!user){
             throw new ApiError (404,"user not found while generating token")
         }
-        
+
         const accesstoken = user.generateAccessToken();
         const refreshtoken = user.generateRefreshToken();
         user.refreshtoken = refreshtoken;
