@@ -1,5 +1,5 @@
 import express, { Router } from "express"
-import { getwheatherDetails } from "../controller/wheather.controller.js"
+import {getWeatherForecast} from"../controller/wheather.controller.js"
 const router=Router()
-router.route("/").get(getwheatherDetails);
+router.route("/forecast").get(getWeatherForecast);
 export default router

@@ -13,9 +13,12 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 import userRoutes from "./Routes/user.routes.js"
-import wheatherRoutes from "./Routes/wheather.routes.js"
+import weatherRoutes from "./Routes/wheather.routes.js"
+import TravelRoutes from "./Routes/map.routes.js"
 app.use("/api/v1/users",userRoutes);
-app.use("/api/v1/wheather",wheatherRoutes);
+app.use("/api/v1/weather",weatherRoutes);
+app.use("/api/v1/route",TravelRoutes);
+
 
 
 export {app}

@@ -32,6 +32,7 @@ const userSchema=new mongoose.Schema(
         },
         accesstoken: { type: String },
         refreshtoken: { type: String },
+        trips: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trip' }]
         
 
     },{timestamps:true}

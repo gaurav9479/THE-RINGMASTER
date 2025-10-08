@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
-const tripSchema=new mongoose.Schema({
-    user:{type:mongoose.Schema.Types.ObjectId,ref:"User",required:true},
-    destination:{type:String,required:true},
-    startDate:{type:Date,required:true},
-    endDate:{type:Date,required:true},
-    weather:[{type:mongoose.Schema.Types.ObjectId,ref:"weather"}],
-    routes:[{type:mongoose.Schema.Types.ObjectId,ref:"routes"}],
-    budget:[{type:mongoose.Schema.Types.ObjectId,ref:"budget"}],
-    itenenary:[{type:mongoose.Schema.Types.ObjectId,ref:"itenenary"}],
-    events:[{type:mongoose.Schema.Types.ObjectId,ref:"events"}],
+const tripSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    destination: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    weatherForecast: { type: Object },
+    travelRoute: { type: Object },
+    events: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],
+    budget: { type: Object },
+    itinerary: { type: Array }
+}, { timestamps: true });
 
-},{timestamps:true});
 export default mongoose.model("trip",tripSchema);

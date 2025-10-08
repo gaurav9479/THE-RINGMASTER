@@ -1,38 +1,53 @@
+import axios from "axios";
+import { asynchandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { asynchandler } from "../utils/AsyncHandler.js";
-import axios from "axios"
 
-const getwheatherDetails=asynchandler(async(req,res)=>{
-    const {city}=req.query;
-    if(!city || city.trim()===''){
-        throw new ApiError(400,"city name is required")
-    }
-    const mapurl= `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-    city)}&format=json&limit=1`;
-    const mapresponse= await axios.get(mapurl);
-    if(!mapresponse.data.length){
-        throw new ApiError(404,"city not found")
 
+export const getWeatherForecast = asynchandler(async (req, res) => {
+    const { destination, startDate, endDate } = req.body;
+
+
+    if (!destination || !startDate || !endDate) {
+    throw new ApiError(400, "Destination, startDate, and endDate are required");
     }
-    const {lat,lon}=mapresponse.data[0];
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.OPENWEATHER_API_KEY}`;
-    const wheatherResponse=await axios.get(weatherUrl);
-    const data=wheatherResponse.data;
-    return res.status(200).json(
-    new ApiResponse(
-        200,
-        {
-        city: city,
-        coordinates: { lat, lon },
-        forecast: data.list.slice(0, 5).map((item) => ({
-            date: item.dt_txt,
-            temperature: item.main.temp,
-            weather: item.weather[0].description,
-        })),
-        },
-        "Weather details fetched successfully"
-    )
-    );
-})
-export {getwheatherDetails}
+
+
+    const apiKey = process.env.OPEN_WHEATHER_API_KEY; // 
+    const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${destination}&appid=${apiKey}&units=metric`;
+
+    let weatherData;
+    try {
+    const { data } = await axios.get(apiUrl);
+    weatherData = data;
+    } catch (error) {
+        throw new ApiError(500, "Failed to fetch weather data from API");
+    }
+
+
+    const forecast = weatherData.list.filter((entry) => {
+    const entryDate = new Date(entry.dt_txt);
+    return entryDate >= new Date(startDate) && entryDate <= new Date(endDate);
+    });
+
+
+    const formattedForecast = forecast.map((f) => ({
+    date: f.dt_txt,
+    temperature: f.main.temp,
+    humidity: f.main.humidity,
+    weather: f.weather[0].description,
+    }));
+
+    const response = {
+    destination,
+    startDate,
+    endDate,
+    forecast: formattedForecast,
+    };
+
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, response, "Weather forecast fetched successfully"));
+});
+
