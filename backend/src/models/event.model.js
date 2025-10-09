@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 const eventSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    location: String,
-    startDate: Date,
-    endDate: Date,
+    city: String,
+    place: String,
     type: String,
-    link: String
+    duration: String,
+    image: String,
+    bestTimeToVisit: String,
+    description: String,
 }, { timestamps: true });
 export default mongoose.model("Events",eventSchema)
