@@ -13,38 +13,38 @@ dotenv.config();
 const connectDB = async () => {
     try {
         await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`);
-        console.log("✅ MongoDB connected");
+        console.log("MongoDB connected");
     } catch (error) {
-        console.error("❌ MongoDB connection failed:", error.message);
+        console.error("MongoDB connection failed:", error.message);
         process.exit(1);
     }
 };
 
 
-const imagekit = new ImageKit({
-    publicKey: process.env.IMAGE_KIT_PUBLIC_KEY,
-    privateKey: process.env.IMAGE_KIT_PRIVATE_KEY,
-    urlEndpoint: process.env.IMAGE_KIT_URL,
-});
+// const imagekit = new ImageKit({
+//     publicKey: process.env.IMAGE_KIT_PUBLIC_KEY,
+//     privateKey: process.env.IMAGE_KIT_PRIVATE_KEY,
+//     urlEndpoint: process.env.IMAGE_KIT_URL,
+// });
 
 
-const uploadImage = async (localFilePath, fileName) => {
-    try {
-        const fileBuffer = fs.readFileSync(localFilePath);
-        const base64 = fileBuffer.toString("base64");
+// const uploadImage = async (localFilePath, fileName) => {
+//     try {
+//         const fileBuffer = fs.readFileSync(localFilePath);
+//         const base64 = fileBuffer.toString("base64");
 
-        const uploadResponse = await imagekit.upload({
-            file: base64,
-            fileName,
-        });
+//         const uploadResponse = await imagekit.upload({
+//             file: base64,
+//             fileName,
+//         });
 
-        console.log(`✅ Uploaded: ${fileName}`);
-        return uploadResponse.url;
-    } catch (error) {
-        console.error(`⚠️ Upload failed (${fileName}):`, error.message);
-        return null;
-    }
-};
+//         console.log(`✅ Uploaded: ${fileName}`);
+//         return uploadResponse.url;
+//     } catch (error) {
+//         console.error(`⚠️ Upload failed (${fileName}):`, error.message);
+//         return null;
+//     }
+// };
 
 
 const seedPlaces = async () => {
