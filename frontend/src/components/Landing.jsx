@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom'
 const Landing =()=> {
   return(
     <>
-        <Navbar/>,
+        <Navbar/>
         <main className="min-h-screen bg-darkPlum text-white">
             <Outlet />
         </main>

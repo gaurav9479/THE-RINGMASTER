@@ -11,7 +11,7 @@ const router=createBrowserRouter([
     element:<Landing/>,
     children:[{
       index:true,
-      element:<Search/>
+      element:<Search/>,
     }]
   },
   {

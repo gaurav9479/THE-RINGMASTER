@@ -6,7 +6,7 @@ const [destination, setDestination] = useState("");
 const handleSearch = (e) => {
     e.preventDefault();
     alert(`Searching for trips to ${destination}`);
-    // Here you can redirect or fetch results
+
   };
 
   return (
@@ -27,7 +27,7 @@ const handleSearch = (e) => {
         />
         <button
           type="submit"
-          className="w-full bg-primary text-white py-2 rounded hover:bg-secondary transition"
+          className="w-full bg-secondary text-white py-2 rounded "
         >
           Search
         </button>
