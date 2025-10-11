@@ -7,5 +7,5 @@ const resturanSchema=new mongoose.Schema({
     rating:{type:Number,required:true},
     address:{type:String,required:true}
 
-});
-export default mongoose.Schema("resturant",resturanSchema);
+},{timestamps:true});
+export default mongoose.model("Resturant",resturanSchema);

@@ -33,7 +33,7 @@ const readCSV=(filepath)=>{
     })
 }
 const seedhotel=async()=>{
-    await connectDB()
+    //await connectDB()
     const csvfilepath=path.join(process.cwd(),"src","CSV","jaipur_hotels.csv")
     console.log("reading from csv",csvfilepath)
     const hotels=await readCSV(csvfilepath)
@@ -44,7 +44,7 @@ const seedhotel=async()=>{
 
 
 }
-seedhotel().catch((err)=>{
-    console.error("SEEDER failed",err)
-    mongoose.connection.close();
-})
+// seedhotel().catch((err)=>{
+//     console.error("SEEDER failed",err)
+//     mongoose.connection.close();
+// })

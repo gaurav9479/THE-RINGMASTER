@@ -48,7 +48,7 @@ const connectDB = async () => {
 
 
 const seedPlaces = async () => {
-    await connectDB();
+    //await connectDB();
 
     const csvPath = path.join(process.cwd(),"src", "CSV", "jaipur_places.csv");
     console.log(`📂 Reading CSV from: ${csvPath}`);
