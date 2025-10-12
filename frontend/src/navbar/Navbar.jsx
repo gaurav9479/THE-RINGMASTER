@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
+import { useAuth } from "../Context/AuthContext";
 
 function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const {isLoggedIn,setIsLoggedIn,setIsLoginOpen} = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const handleLogin = () => setIsLoggedIn(true);
+  const handleLogin = () => setIsLoginOpen(true);
   const handleLogout = () => {
     setIsLoggedIn(false);
     setDropdownOpen(false);
@@ -41,6 +42,7 @@ function Navbar() {
                     <Link
                       to="/MyAccount"
                       className="px-4 py-2 hover:bg-primary hover:text-white block"
+                      onClick={() => setDropdownOpen(false)}
                     >
                       My Account
                     </Link>
@@ -49,6 +51,7 @@ function Navbar() {
                     <Link
                       to="/MyTrip"
                       className="px-4 py-2 hover:bg-primary hover:text-white block"
+                      onClick={() => setDropdownOpen(false)}
                     >
                       My Trips
                     </Link>

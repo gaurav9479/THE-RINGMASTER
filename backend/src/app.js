@@ -1,9 +1,12 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import dotenv from "dotenv"
 const app=express()
+dotenv.config()
 app.use(cors({
-    origin:process.env.CORS_ORIGIN,
+    origin:process.env.CORS_ORIGIN||"http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials:true
 
 }))
@@ -15,7 +18,7 @@ app.use(cookieParser())
 import userRoutes from "./Routes/user.routes.js"
 import weatherRoutes from "./Routes/wheather.routes.js"
 import TravelRoutes from "./Routes/map.routes.js"
-app.use("/api/v1/users",userRoutes);
+app.use("/api/v1/user",userRoutes);
 app.use("/api/v1/weather",weatherRoutes);
 app.use("/api/v1/route",TravelRoutes);
 

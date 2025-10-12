@@ -1,5 +1,5 @@
 import React from 'react'
-import Navbar from '../navbar/Navbar'
+import Navbar from '../navbar/navbar'
 import { Outlet } from 'react-router-dom'
 const Landing =()=> {
   return(
@@ -8,6 +8,7 @@ const Landing =()=> {
         <main className="min-h-screen bg-darkPlum text-white">
             <Outlet />
         </main>
+        
         
     </>
   )
