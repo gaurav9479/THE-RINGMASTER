@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { X, Mail, Lock } from 'lucide-react';
 import { loginUser } from "../utils/axios.auth";
+import toast from "react-toastify";
 
 function LoginModal() {
     const { isLoginOpen, setIsLoginOpen, setIsLoggedIn, setIsRegisterOpen } = useAuth();

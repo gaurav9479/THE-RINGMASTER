@@ -1,13 +1,10 @@
 import React from 'react'
 import { useState } from 'react';
+import { useDestinantion } from '../Context/PlaceContext';
 function Search(){
-const [destination, setDestination] = useState("");
+const {destination, setDestination} =useDestinantion;
 
-const handleSearch = (e) => {
-    e.preventDefault();
-    alert(`Searching for trips to ${destination}`);
 
-  };
 
   return (
     <div className="h-screen flex items-center justify-center bg-secondary">

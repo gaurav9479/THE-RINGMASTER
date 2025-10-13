@@ -18,9 +18,11 @@ app.use(cookieParser())
 import userRoutes from "./Routes/user.routes.js"
 import weatherRoutes from "./Routes/wheather.routes.js"
 import TravelRoutes from "./Routes/map.routes.js"
+import cityRoutes from "./Routes/search.routes.js"
 app.use("/api/v1/user",userRoutes);
 app.use("/api/v1/weather",weatherRoutes);
 app.use("/api/v1/route",TravelRoutes);
+app.use("/api/v1/search",cityRoutes);
 
 
 
