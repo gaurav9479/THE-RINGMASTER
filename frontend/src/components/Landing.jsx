@@ -1,17 +1,16 @@
-import React from 'react'
-import Navbar from '../navbar/navbar'
-import { Outlet } from 'react-router-dom'
-const Landing =()=> {
-  return(
+import React from 'react';
+import Navbar from '../navbar/navbar';
+import { Outlet } from 'react-router-dom';
+
+const Landing = () => {
+  return (
     <>
-        <Navbar/>
-        <main className="min-h-screen bg-darkPlum text-white">
-            <Outlet />
-        </main>
-        
-        
+      <Navbar />
+      <main className="min-h-screen bg-darkPlum text-white">
+        <Outlet /> 
+      </main>
     </>
-  )
+  );
 }
 
-export default Landing
+export default Landing;

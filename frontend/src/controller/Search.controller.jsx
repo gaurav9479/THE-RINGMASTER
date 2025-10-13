@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { searchByCity } from "../utils/axios.auth.js";
+import { searchByCity } from "../utils/axios.auth.jsx";
 
 class SearchControler{
     constructor(){
