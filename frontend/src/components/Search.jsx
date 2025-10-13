@@ -1,36 +1,39 @@
-import React from 'react'
-import { useState } from 'react';
-import { useDestinantion } from '../Context/PlaceContext';
-function Search(){
-const {destination, setDestination} =useDestinantion;
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import searchController from "../controller/Search.controller.js";
 
+export default function SearchPage(){
+  const [city,setCity]=useState('')
+  const navigate=useNavigate()
+  
+  const handleSearch=async(e)=>{
+    e.preventDefault();
+    const result= await searchController.searchDestination(city)
+    if(result.success){
+      navigate(`/search/city?destination=${city}`)
+    }
 
-
-  return (
-    <div className="h-screen flex items-center justify-center bg-secondary">
-      <form
-        onSubmit={handleSearch}
-        className="bg-primary p-8 rounded-lg shadow-lg w-full max-w-md"
-      >
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          Where are you going?
-        </h1>
+  };
+    return (
+    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-purple-100">
+      <h1 className="text-3xl font-bold mb-6">Discover Your Next Destination 🌍</h1>
+      <form onSubmit={handleSubmit} className="flex items-center space-x-3">
         <input
           type="text"
-          placeholder="Enter destination"
+          placeholder="Enter city name..."
           value={destination}
           onChange={(e) => setDestination(e.target.value)}
-          className="w-full border border-gray-300 rounded px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-primary"
+          className="px-4 py-2 border rounded-lg w-64"
         />
         <button
           type="submit"
-          className="w-full bg-secondary text-white py-2 rounded "
+          className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
           Search
         </button>
       </form>
     </div>
   );
-}
 
-export default Search
+
+}

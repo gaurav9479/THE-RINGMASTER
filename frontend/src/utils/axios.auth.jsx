@@ -31,8 +31,11 @@ export const loginUser = async (userData) => {
     throw error.response?.data?.message || "Login failed";
   }
 };
+
 export const logoutUser = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
 };
-export Api
+export const searchByCity=(destination)=>API.get(`search/city?destination=${destination}`)
+
+export default API

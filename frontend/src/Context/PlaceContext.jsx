@@ -1,31 +1,67 @@
-import { createContext, useContext, useState } from "react";
-import { toast } from "react-toastify";
+import { useEffect } from "react";
+import { useState } from "react";
+import { createContext } from "react";
+import searchController from "../controller/Search.controller.jsx";
+import { useContext } from "react";
+const DestinationContext=createContext();
 
-const PlaceContext=createContext()
-export const PlaceProvider=({children})=>{
-    const [destination,setDestination]=useState();
-    const [searchResults,setSearchResults]=useState(null);
+export function DestinationProvider({children}){
+    const [destination,setDestination]=useState('');
+    const [searchResult,setSearchResult]=useState(null);
     const [loading,setloading]=useState(false);
     const [searchHistory,setSearchHistory]=useState([]);
+    useEffect(() => {
+        setSearchHistory(searchController.loadSearchHistory());
+    }, []);
 
     const searchDestination=async(city)=>{
-        if(!city||!city.trim()){
-            toast.warning("please enter a city naem")
-            return{sucess:false}
-        }
         setloading(true);
         setDestination(city);
-        try{
-            const response=await 
+        const result = await searchController.searchDestination(city);
+        if(result.success){
+            setSearchResult(result.data)
+            setSearchHistory([...searchController.searchHistory])
         }
+        setloading(false);
+        return result;
     }
-
-    return(
-        <PlaceContext.Provider value={{destination,setDestination}}>
+    const clearResults = () => {
+        searchController.clearResults();
+        setSearchResult(null);
+        setDestination('');
+    };
+    const clearHistory = () => {
+        searchController.clearHistory();
+        setSearchHistory([]);
+    };
+    const getFilteredData = (type) => {
+        return searchController.getFilteredData(type);
+    };
+    const getWeather = () => {
+        return searchController.getWeather();
+    };
+    return (
+        <DestinationContext.Provider value={{
+            destination,
+            setDestination,
+            searchResult,
+            loading,
+            searchHistory,
+            searchDestination,
+            clearResults,
+            clearHistory,
+            getFilteredData,
+            getWeather
+        }}>
             {children}
-        </PlaceContext.Provider>
-    )
+        </DestinationContext.Provider>
+    );
 }
-export function useDestinantion(){
-    return useContext(PlaceContext);
+export function useDestination(){
+    const context=useContext(DestinationContext);
+    if(!context){
+        throw new Error('useDestinantion must be used within DestinationProvider');
+    }
+    return context
+
 }

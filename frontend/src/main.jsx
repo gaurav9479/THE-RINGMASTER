@@ -8,9 +8,9 @@ import { PlaceProvider } from './Context/PlaceContext.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
-      <PlaceProvider>
+      {/* <PlaceProvider> */}
         <App />
-      </PlaceProvider>
+      {/* </PlaceProvider> */}
     </AuthProvider>
 
     
