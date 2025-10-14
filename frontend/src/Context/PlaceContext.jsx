@@ -35,7 +35,7 @@ export function DestinationProvider({children}){
         setSearchHistory([]);
     };
     const getFilteredData = (type) => {
-        return searchController.getFilteredData(type);
+        return searchController.getFilterData(type);
     };
     const getWeather = () => {
         return searchController.getWeather();

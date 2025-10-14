@@ -7,7 +7,7 @@ import { MapPin,Hotel as HotelIcon,
     Thermometer} from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useDestination } from "../Context/PlaceContext.jsx";
+import { useDestination } from "../Context/PlaceContext";
 
 function Results(){
     const {city}=useParams();
@@ -25,7 +25,7 @@ function Results(){
         if (city !== destination) {
             searchDestination(city);
         }
-    }, [city]);
+    }, [city,destination]);
 
     if (loading) {
         return (
@@ -60,11 +60,11 @@ function Results(){
             id: 'all', 
             label: 'All', 
             count: searchResult.results.hotels + 
-                    searchResult.results.restaurants + 
+                    searchResult.results.restaurant + 
                     searchResult.results.events
         },
         { id: 'hotels', label: 'Hotels', count: searchResult.results.hotels, icon: HotelIcon },
-        { id: 'restaurants', label: 'Restaurants', count: searchResult.results.restaurants, icon: UtensilsCrossed },
+        { id: 'restaurant', label: 'Restaurant', count: searchResult.results.restaurant, icon: UtensilsCrossed },
         { id: 'events', label: 'Events', count: searchResult.results.events, icon: Calendar }
     ];
     const filteredData=getFilteredData(activeTab)
@@ -145,7 +145,7 @@ function Results(){
                 {filteredData.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredData.map((item, index) => (
-                            <ResultCard key={index} item={item} />
+                            <ResultCard key={item.id||index} item={item} />
                         ))}
                     </div>
                 ) : (

@@ -36,6 +36,7 @@ export const logoutUser = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
 };
-export const searchByCity=(destination)=>API.get(`search/city?destination=${destination}`)
+export const searchByCity = (destination) => 
+  API.get(`/search/city?destination=${destination}`);
 
 export default API

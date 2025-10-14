@@ -23,7 +23,7 @@ export const searchCity = asynchandler(async (req, res) => {
         destination,
         results: {
             hotels: hotels.length,
-            restaurants: resturant.length,
+            restaurant: resturant.length,
             events: events.length,
         },
         data: {

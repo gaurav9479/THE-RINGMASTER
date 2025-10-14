@@ -51,7 +51,7 @@ class SearchControler{
             toast.success(`Found results for ${city}`);
             return {
                 success: true,
-                data: this.searchResults
+                data: this.searchResult
             };
         }catch(error){
             const errormsg=error.response?.data?.message||"failed to fetch"
@@ -59,7 +59,7 @@ class SearchControler{
             console.error('Search error:', error);
             return {
                 success: false,
-                error: errorMessage
+                error: errormsg
             };
         }finally {
             this.loading = false;
@@ -71,11 +71,11 @@ class SearchControler{
         const typeMap={
             hotels:()=>hotels.map(item=>({...item,type:"hotel"})),
             resturant:()=>resturant.map(item=>({...item,type:"resturant"})),
-            events:()=>events.map(item=>({...item,type:"events"})),
+            events:()=>events.map(item=>({...item,type:"event"})),
             all:()=>[
                 ...hotels.map(item=>({...item,type:"hotel"})),
                 ...resturant.map(item=>({...item,type:"resturant"})),
-                ...events.map(item=>({...item,type:"events"}))
+                ...events.map(item=>({...item,type:"event"}))
             ]
 
         }
@@ -84,8 +84,8 @@ class SearchControler{
     }
     getResultsCount() {
         if (!this.searchResult) return 0;
-        const { hotels, restaurants, events } = this.searchResult.results;
-        return hotels + restaurants + events;
+        const { hotels, restaurant, events } = this.searchResult.results;
+        return hotels + restaurant + events;
     }
     getWeather() {
         if (!this.searchResult) return null;

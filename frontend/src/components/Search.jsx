@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import searchController from "../controller/Search.controller.jsx";
+import { useDestination } from "../Context/PlaceContext.jsx";
 
 export default function SearchPage(){
   const [city,setCity]=useState('')
   const navigate=useNavigate()
-  
+  const searchDestination=useDestination()
   const handleSearch=async(e)=>{
     e.preventDefault();
     const result= await searchController.searchDestination(city)
     if(result.success){
 
-      navigate(`/results/${city}`)
+      navigate(`/results/${city.trim()}`)
     }
 
   };
