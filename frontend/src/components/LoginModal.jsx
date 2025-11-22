@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { X, Mail, Lock } from 'lucide-react';
 import { loginUser } from "../utils/axios.auth";
+import { useNavigate } from "react-router-dom";
 
 
 function LoginModal() {
     const { isLoginOpen, setIsLoginOpen, setIsLoggedIn, setIsRegisterOpen } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     
     const handleSubmit = async(e) => {
@@ -18,6 +20,12 @@ function LoginModal() {
             localStorage.setItem("token",data.token);
             setIsLoggedIn(true);
             setIsLoginOpen(false);
+
+            if (data.user.role === 'hotel_owner') {
+                navigate('/dashboard/hotel-owner');
+            } else if (data.user.role === 'event_organizer') {
+                navigate('/dashboard/event-organizer');
+            }
         }catch(err){
             console.error("Login failed:", err.response?.data || err.message)
             console.log("unable to get user")

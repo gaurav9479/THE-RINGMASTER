@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme {
+    --color-ringmaster-dark: #1a0b2e;
+    --color-ringmaster-plum: #2d1b4e;
+    --color-ringmaster-gold: #ffd700;
+    --color-ringmaster-crimson: #dc143c;
+    --color-ringmaster-text: #f8f8f8;
+    --color-ringmaster-accent: #764ba2;
+
+    --animate-blob: blob 7s infinite;
+    --animate-fade-in-up: fadeInUp 0.6s ease-out;
+}
+
+@keyframes blob {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+        transform: translate(0px, 0px) scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+body {
+    background-color: var(--color-ringmaster-dark);
+    color: var(--color-ringmaster-text);
+    font-family: 'Inter', sans-serif;
+}
+
+.glass-panel {
+    background: rgba(45, 27, 78, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-ringmaster-plum), var(--color-ringmaster-accent));
+    border: 1px solid var(--color-ringmaster-gold);
+    color: var(--color-ringmaster-gold);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--color-ringmaster-accent), var(--color-ringmaster-plum));
+    box-shadow: 0 0 15px var(--color-ringmaster-gold);
+    transform: translateY(-2px);
+}
+
+.text-gold {
+    color: var(--color-ringmaster-gold);
+}
+
+.animate-blob {
+    animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+}

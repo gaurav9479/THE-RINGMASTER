@@ -21,6 +21,11 @@ function Navbar() {
       </Link>
 
       <ul className="flex space-x-6 items-center">
+        <li>
+          <Link to="/ai-help" className="hover:text-secondary transition">
+            AI HELP
+          </Link>
+        </li>
         {!isLoggedIn ? (
           <button
             onClick={handleLogin}

@@ -7,5 +7,9 @@ const eventSchema = new mongoose.Schema({
     image: String,
     bestTimeToVisit: String,
     description: String,
+    organizer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }
 }, { timestamps: true });
-export default mongoose.model("Events",eventSchema)
+export default mongoose.model("Events", eventSchema)

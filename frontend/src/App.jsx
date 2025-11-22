@@ -12,8 +12,9 @@ import MyAccount from "./components/MyAccount.jsx"
 import MyTrip from "./components/MyTrip.jsx";
 import SearchPage from "./components/Search.jsx";
 import Results from "./components/Result.jsx";
-import LoginModal from "./components/LoginModal.jsx";
-import RegisterModal from "./components/RegisterModal.jsx";
+import HotelOwnerDashboard from "./components/HotelOwnerDashboard.jsx";
+import EventOrganizerDashboard from "./components/EventOrganizerDashboard.jsx";
+import AIHelp from "./components/AIHelp.jsx";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,18 @@ const router = createBrowserRouter([
         path: "MyTrip",
         element: <MyTrip />,
       },
+      {
+        path: "dashboard/hotel-owner",
+        element: <HotelOwnerDashboard />,
+      },
+      {
+        path: "dashboard/event-organizer",
+        element: <EventOrganizerDashboard />,
+      },
+      {
+        path: "ai-help",
+        element: <AIHelp />,
+      },
     ],
   },
 ]);
@@ -49,10 +62,6 @@ function App() {
     <AuthProvider>
       <DestinationProvider>
         <RouterProvider router={router} />
-        
-        {/* Global Modals */}
-        <LoginModal />
-        <RegisterModal />
         
         {/* Toast Notifications */}
         <ToastContainer

@@ -9,6 +9,10 @@ const hotelSchema = new mongoose.Schema({
     image: String,
     amenities: [String],
     description: String,
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }
 }, { timestamps: true });
 
 export default mongoose.model("Hotel", hotelSchema);
