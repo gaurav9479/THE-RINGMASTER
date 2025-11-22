@@ -12,7 +12,7 @@ app = FastAPI()
 
 # Database Connection (Direct access for simplicity in this agent context)
 # In a real microservice, this might be separate, but for "MCP" style aggregation, it's fine.
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/ringmaster") # Default to local if not set
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://loca") # Default to local if not set
 client = MongoClient(MONGO_URI)
 db = client.get_database("ringmaster")
 
