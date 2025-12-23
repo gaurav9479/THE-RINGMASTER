@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bot, Map } from 'lucide-react';
+import { Bot, Map, Navigation } from 'lucide-react';
 
 function UserDashboard() {
     const navigate = useNavigate();
@@ -42,6 +42,20 @@ function UserDashboard() {
                     <h2 className="text-3xl font-bold text-white mb-2">Manual Explorer</h2>
                     <p className="text-gray-400">
                         Browse top-rated hotels and restaurants, add them to your cart, and build your own trip.
+                    </p>
+                </div>
+
+                {/* Smart Route Card */}
+                <div 
+                    onClick={() => navigate('/smart-route')}
+                    className="group bg-white/5 border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-all cursor-pointer hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-500/10"
+                >
+                    <div className="w-16 h-16 bg-cyan-500/20 rounded-2xl flex items-center justify-center text-cyan-400 mb-6 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
+                        <Navigation className="animate-pulse" size={40} />
+                    </div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Smart Route</h2>
+                    <p className="text-gray-400">
+                        Experience precision routing combined with live weather forecasts for your entire journey.
                     </p>
                 </div>
 

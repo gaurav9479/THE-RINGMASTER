@@ -12,6 +12,7 @@ import UserDashboard from "./components/UserDashboard.jsx";
 import AiPlanner from "./components/AiPlanner.jsx";
 import VendorDashboard from "./components/VendorDashboard.jsx";
 import ManualExplorer from "./components/ManualExplorer.jsx";
+import SmartRoutePlanner from "./components/SmartRoutePlanner.jsx";
 import MyAccount from "./components/MyAccount.jsx"
 import MyTrip from "./components/MyTrip.jsx";
 import SearchPage from "./components/Search.jsx";
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
       {
         path: "manual-explorer",
         element: <ManualExplorer />,
+      },
+      {
+        path: "smart-route",
+        element: <SmartRoutePlanner />,
       },
       {
         path: "search",
