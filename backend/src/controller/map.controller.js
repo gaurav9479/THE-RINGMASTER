@@ -17,9 +17,7 @@ export const getTravelRoute = asynchandler(async (req, res) => {
 
 
     const geocode = async (place) => {
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-            place
-        )}&format=json&limit=1`;
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`;
         try {
             const { data } = await axios.get(url, {
                 headers: { "User-Agent": "RingmasterApp/1.0" },

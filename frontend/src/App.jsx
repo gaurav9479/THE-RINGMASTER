@@ -6,8 +6,12 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-import Landing from "./components/Landing.jsx";
+import Layout from "./components/Layout.jsx";
 import Home from "./components/Home.jsx";
+import UserDashboard from "./components/UserDashboard.jsx";
+import AiPlanner from "./components/AiPlanner.jsx";
+import VendorDashboard from "./components/VendorDashboard.jsx";
+import ManualExplorer from "./components/ManualExplorer.jsx";
 import MyAccount from "./components/MyAccount.jsx"
 import MyTrip from "./components/MyTrip.jsx";
 import SearchPage from "./components/Search.jsx";
@@ -19,11 +23,23 @@ import AIHelp from "./components/AIHelp.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Landing />, // This has Navbar and Outlet
+    element: <Layout />, 
     children: [
       {
-        index: true, // Default route "/"
-        element: <Home />, // Your home page content
+        index: true, 
+        element: <Home />, 
+      },
+      {
+        path: "dashboard",
+        element: <UserDashboard />,
+      },
+      {
+        path: "ai-planner",
+        element: <AiPlanner />,
+      },
+      {
+        path: "manual-explorer",
+        element: <ManualExplorer />,
       },
       {
         path: "search",
@@ -52,6 +68,10 @@ const router = createBrowserRouter([
       {
         path: "ai-help",
         element: <AIHelp />,
+      },
+      {
+        path: "vendor-dashboard",
+        element: <VendorDashboard />,
       },
     ],
   },

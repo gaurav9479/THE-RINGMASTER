@@ -14,8 +14,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="bg-primary text-white px-6 py-4 flex justify-between items-center shadow-md">
-      {/* Logo */}
+    <nav className="bg-primary text-white  z-100 px-6 py-4 flex justify-between items-center shadow-md">
       <Link to="/" className="text-2xl font-bold">
         SASTA MMT
       </Link>
