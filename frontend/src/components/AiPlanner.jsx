@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Compass, Sparkles, MapPin, Calendar, Wallet, Loader2, Plane, Hotel, Utensils, Zap } from 'lucide-react';
+import { Compass, Sparkles, MapPin, Calendar, Wallet, Loader2, Plane, Hotel, Utensils, Zap, Clock, Info } from 'lucide-react';
+import MagicPackingList from './MagicPackingList';
+import API from '../utils/axios.auth';
 
 const AiPlanner = () => {
   const [step, setStep] = useState(1);
@@ -23,42 +25,53 @@ const AiPlanner = () => {
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
 
-  const generateItinerary = () => {
+  const formatItinerary = (rawItinerary) => {
+    return rawItinerary.map((dayData, index) => {
+      const activities = dayData.activities.map((task, i) => {
+        // Assign times and icons based on activity index and keywords
+        let time = "09:00 AM";
+        let icon = <MapPin />;
+
+        if (i === 0) { time = "09:00 AM"; icon = <Hotel />; }
+        else if (i === 1) { time = "12:30 PM"; icon = <Utensils />; }
+        else if (i === 2) { time = "04:00 PM"; icon = <Zap />; }
+        else if (i === 3) { time = "07:30 PM"; icon = <Utensils />; }
+
+        if (task.toLowerCase().includes("check-in") || task.toLowerCase().includes("hotel")) icon = <Hotel />;
+        if (task.toLowerCase().includes("dinner") || task.toLowerCase().includes("lunch") || task.toLowerCase().includes("cuisine")) icon = <Utensils />;
+        if (task.toLowerCase().includes("flight") || task.toLowerCase().includes("departure")) icon = <Plane />;
+        if (task.toLowerCase().includes("party") || task.toLowerCase().includes("event")) icon = <Sparkles />;
+
+        return { time, task, icon };
+      });
+
+      return {
+        day: dayData.day,
+        title: index === 0 ? "The Grand Opening" : index === rawItinerary.length - 1 ? "Closing Ceremony" : `Treasures of Day ${dayData.day}`,
+        activities
+      };
+    });
+  };
+
+  const generateItinerary = async () => {
     setLoading(true);
-    // Simulate AI thinking
-    setTimeout(() => {
-      setLoading(false);
-      setItinerary([
-        {
-          day: 1,
-          title: "The Arrival & Exploration",
-          activities: [
-            { time: "09:00 AM", task: "Check-in at Premium Boutique Hotel", icon: <Hotel /> },
-            { time: "12:30 PM", task: "Authentic Local Cuisine Lunch", icon: <Utensils /> },
-            { time: "03:00 PM", task: "Explore the City Heritage Sites", icon: <MapPin /> }
-          ]
-        },
-        {
-          day: 2,
-          title: "Deep Dive into " + prefs.vibe,
-          activities: [
-            { time: "08:00 AM", task: "Guided " + prefs.vibe + " Tour", icon: <Compass /> },
-            { time: "01:00 PM", task: "Hidden Gem Discovery", icon: <MapPin /> },
-            { time: "07:00 PM", task: "Evening Gala & Networking", icon: <Sparkles /> }
-          ]
-        },
-        {
-          day: 3,
-          title: "Farwell & Memories",
-          activities: [
-            { time: "10:00 AM", task: "Souvenir Shopping at Local Markets", icon: <Zap /> },
-            { time: "02:00 PM", task: "Signature Farwell Meal", icon: <Utensils /> },
-            { time: "05:00 PM", task: "Departure Transfer", icon: <Plane /> }
-          ]
-        }
-      ]);
+    try {
+      const response = await API.post("/ai/plan", {
+        destination: prefs.destination,
+        days: prefs.duration
+      });
+      
+      const rawData = response.data.data;
+      const formatted = formatItinerary(rawData.itinerary);
+      
+      setItinerary(formatted);
       setStep(5);
-    }, 3000);
+    } catch (error) {
+      console.error("AI Generation failed:", error);
+      alert("AI Agent is currently busy. Please try again in a few moments.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -225,6 +238,15 @@ const AiPlanner = () => {
                 </div>
               ))}
             </div>
+
+            {/* Magic Packing List Integration */}
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+            >
+                <MagicPackingList vibe={prefs.vibe} destination={prefs.destination} />
+            </motion.div>
             
             <div className="flex justify-center gap-4">
               <button 

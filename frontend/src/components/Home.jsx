@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 
 function Home() {
     const { setIsLoginOpen, setIsRegisterOpen, isLoggedIn } = useAuth();
+    const navigate = useNavigate();
     
     // Redirect to dashboard if already logged in (optional but good UX)
     React.useEffect(() => {
