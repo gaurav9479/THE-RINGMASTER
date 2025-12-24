@@ -21,14 +21,16 @@ import cityRoutes from "./Routes/search.routes.js"
 import hotelRoutes from "./Routes/hotel.routes.js"
 import eventRoutes from "./Routes/event.routes.js"
 import aiRoutes from "./Routes/ai.routes.js"
+import bookingRoutes from "./Routes/booking.routes.js"
 
 app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/weather", weatherRoutes);
-app.use("/api/v1/route", TravelRoutes);
+app.use("/api/v1/wheather", weatherRoutes);
+app.use("/api/v1/map", TravelRoutes);
 app.use("/api/v1/search", cityRoutes);
 app.use("/api/v1/hotels", hotelRoutes);
 app.use("/api/v1/events", eventRoutes);
 app.use("/api/v1/ai", aiRoutes);
+app.use("/api/v1/bookings", bookingRoutes);
 
 
 

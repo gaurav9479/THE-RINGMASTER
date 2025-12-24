@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Navigation, Cloud, Thermometer, Wind, Droplets, Calendar, ArrowRight, Loader2, Map as MapIcon } from 'lucide-react';
+import MagicPackingList from './MagicPackingList';
 
 const SmartRoutePlanner = () => {
     const [destination, setDestination] = useState('');
@@ -212,6 +213,11 @@ const SmartRoutePlanner = () => {
                                         )}
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Magic Packing List Integration */}
+                            <div className="lg:col-span-3">
+                                <MagicPackingList vibe="Adventure" destination={destination} />
                             </div>
                         </motion.div>
                     )}
