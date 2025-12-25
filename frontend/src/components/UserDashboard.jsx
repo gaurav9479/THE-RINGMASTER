@@ -1,12 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bot, Map, Navigation } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Bot, Map, Navigation, Compass } from 'lucide-react';
+import FortuneTeller from './FortuneTeller';
 
 function UserDashboard() {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen p-8 flex flex-col items-center justify-center">
+        <div className="min-h-screen p-8 flex flex-col items-center justify-center pt-24">
             
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">
                 How would you like to plan?
@@ -15,7 +17,7 @@ function UserDashboard() {
                 Choose the best way to organize your trip. Use our advanced AI or explore manually.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
                 
                 {/* AI Mode Card */}
                 <div 
@@ -60,6 +62,30 @@ function UserDashboard() {
                 </div>
 
             </div>
+
+            {/* Travel Fortune Teller Section */}
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-24 pt-12 border-t border-white/5 w-full max-w-4xl"
+            >
+                <div className="flex flex-col md:flex-row items-center justify-between gap-12 bg-white/5 backdrop-blur-xl border border-white/10 p-12 rounded-[3rem]">
+                    <div className="flex-1 space-y-4 text-center md:text-left">
+                        <h2 className="text-3xl font-black italic">The Traveler's Oracle</h2>
+                        <p className="text-gray-400">Feeling undecided? Let the Ringmaster's crystal ball whisper your next adventure.</p>
+                        <div className="flex items-center gap-4 justify-center md:justify-start pt-4">
+                            <div className="flex -space-x-3">
+                                {[1,2,3].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-black bg-gray-800" />)}
+                            </div>
+                            <span className="text-xs font-bold text-gray-500">1.2k Seekers today</span>
+                        </div>
+                    </div>
+                    <div className="flex-shrink-0">
+                        <FortuneTeller />
+                    </div>
+                </div>
+            </motion.div>
         </div>
     );
 }

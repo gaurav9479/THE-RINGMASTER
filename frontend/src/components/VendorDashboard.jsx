@@ -1,19 +1,35 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, PlusCircle, Users, Calendar, MapPin, Clock, Image as ImageIcon, CheckCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { 
+    LayoutDashboard, PlusCircle, Users, Calendar, MapPin, 
+    Clock, Image as ImageIcon, CheckCircle, CreditCard, 
+    Settings, Edit3, Trash2, QrCode, Banknote, Save
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import API from '../utils/axios.auth';
+import { useEffect } from 'react';
 
 function VendorDashboard() {
     const [activeTab, setActiveTab] = useState('overview');
+    const [customers, setCustomers] = useState([]);
+    const [loading, setLoading] = useState(false);
     
-    // Mock Data for Customers
-    const CUSTOMERS = [
-        { id: 1, name: "Rahul Sharma", event: "Sunset Dinner", date: "2024-12-25", status: "Confirmed", phone: "+91 98765 43210" },
-        { id: 2, name: "Priya Patel", event: "Mountain Trek", date: "2024-12-28", status: "Pending", phone: "+91 91234 56789" },
-        { id: 3, name: "Amit Singh", event: "Live Music Night", date: "2024-12-30", status: "Completed", phone: "+91 88997 76655" },
-        { id: 4, name: "Sneha Gupta", event: "Cooking Workshop", date: "2025-01-05", status: "Confirmed", phone: "+91 77665 54433" },
-    ];
+    // Mock Data for Payments
+    const [paymentInfo, setPaymentInfo] = useState({
+        bankName: 'HDFC Bank',
+        accountNumber: 'XXXX XXXX 5678',
+        ifsc: 'HDFC0001234',
+        qrPlaceholder: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TheRingmasterVendor'
+    });
 
-    // Form State
+    // Mock Data for Listings
+    const [listings, setListings] = useState([
+        { id: 1, name: "The Royal Mirage", type: "Hotel", city: "Mumbai", price: 8500, rating: 4.8 },
+        { id: 2, name: "Spice Symphony", type: "Restaurant", city: "Jaipur", price: 1500, rating: 4.6 },
+        { id: 3, name: "Sunset Dinner", type: "Event", city: "Goa", price: 2500, rating: 4.9 }
+    ]);
+
+    const [editingListing, setEditingListing] = useState(null);
+
     const [eventFiles, setEventFiles] = useState({
         city: '',
         place: '',
@@ -31,6 +47,46 @@ function VendorDashboard() {
             [name]: value
         }));
     };
+
+    const handlePaymentUpdate = (e) => {
+        const { name, value } = e.target;
+        setPaymentInfo(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleEditListing = (listing) => {
+        setEditingListing(listing);
+    };
+
+    const handleSaveEdit = (e) => {
+        e.preventDefault();
+        setListings(prev => prev.map(l => l.id === editingListing.id ? editingListing : l));
+        setEditingListing(null);
+        alert("Listing updated successfully!");
+    };
+
+    const fetchVendorData = async () => {
+        setLoading(true);
+        try {
+            const response = await API.get("/bookings/vendor");
+            const bookings = response.data.data;
+            setCustomers(bookings.map(b => ({
+                id: b._id,
+                name: b.user?.username || "Guest",
+                event: b.item?.name || b.item?.place || "Unknown Item",
+                date: new Date(b.bookingDate).toLocaleDateString(),
+                status: b.status,
+                phone: b.user?.phone || "N/A"
+            })));
+        } catch (error) {
+            console.error("Error fetching vendor data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchVendorData();
+    }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -79,6 +135,20 @@ function VendorDashboard() {
                         <Users size={20} className="mr-3" />
                         Customers
                     </button>
+                    <button 
+                        onClick={() => setActiveTab('listings')}
+                        className={`w-full flex items-center p-3 rounded-xl transition-all ${activeTab === 'listings' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                    >
+                        <Settings size={20} className="mr-3" />
+                        Manage Listings
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('payments')}
+                        className={`w-full flex items-center p-3 rounded-xl transition-all ${activeTab === 'payments' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                    >
+                        <CreditCard size={20} className="mr-3" />
+                        Payments
+                    </button>
                 </nav>
                 
                 <div className="pt-6 border-t border-white/10 text-sm text-gray-500">
@@ -91,10 +161,12 @@ function VendorDashboard() {
                 
                 {/* Header */}
                 <header className="flex justify-between items-center mb-8">
-                    <h2 className="text-3xl font-bold">
-                        {activeTab === 'overview' && 'Dashboard Overview'}
-                        {activeTab === 'create-event' && 'Create New Event'}
-                        {activeTab === 'customers' && 'Customer Bookings'}
+                    <h2 className="text-3xl font-bold italic">
+                        {activeTab === 'overview' && '🎩 Dashboard Overview'}
+                        {activeTab === 'create-event' && '✨ Create New Event'}
+                        {activeTab === 'customers' && '👥 Customer Bookings'}
+                        {activeTab === 'listings' && '📂 Manage Listings'}
+                        {activeTab === 'payments' && '💰 Payment & Bank Details'}
                     </h2>
                     <div className="flex items-center gap-4">
                         <span className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center font-bold">V</span>
@@ -233,20 +305,24 @@ function VendorDashboard() {
 
                     {/* CUSTOMERS TAB */}
                     {activeTab === 'customers' && (
-                        <div className="bg-gray-800 rounded-2xl border border-white/10 overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead className="bg-gray-900/50 text-gray-400 uppercase text-xs font-semibold">
-                                        <tr>
-                                            <th className="p-4 px-6">Customer Name</th>
-                                            <th className="p-4 px-6">Event</th>
-                                            <th className="p-4 px-6">Date</th>
-                                            <th className="p-4 px-6">Phone</th>
-                                            <th className="p-4 px-6">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/5">
-                                        {CUSTOMERS.map((customer) => (
+                        <div className="bg-gray-800 p-8 rounded-2xl border border-white/10">
+                            <h3 className="text-xl font-bold mb-6">All Customer Bookings</h3>
+                            {loading ? (
+                                <div className="text-center py-10 text-gray-400">Loading bookings...</div>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full table-auto">
+                                        <thead>
+                                            <tr className="text-left text-gray-400 text-sm uppercase tracking-wider border-b border-white/10">
+                                                <th className="p-4 px-6">Customer Name</th>
+                                                <th className="p-4 px-6">Event/Item</th>
+                                                <th className="p-4 px-6">Date</th>
+                                                <th className="p-4 px-6">Phone</th>
+                                                <th className="p-4 px-6">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/5">
+                                        {customers.map((customer) => (
                                             <tr key={customer.id} className="hover:bg-white/5 transition-colors">
                                                 <td className="p-4 px-6 font-medium text-white">{customer.name}</td>
                                                 <td className="p-4 px-6 text-gray-300">{customer.event}</td>
@@ -264,11 +340,164 @@ function VendorDashboard() {
                                     </tbody>
                                 </table>
                             </div>
-                            {CUSTOMERS.length === 0 && (
+                            )}
+                            {customers.length === 0 && !loading && (
                                 <div className="p-8 text-center text-gray-500">
                                     No bookings found.
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {/* MANAGE LISTINGS TAB */}
+                    {activeTab === 'listings' && (
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 gap-4">
+                                {listings.map((listing) => (
+                                    <div key={listing.id} className="bg-gray-800 p-6 rounded-2xl border border-white/10 flex justify-between items-center group hover:border-blue-500/50 transition-all">
+                                        <div className="flex gap-4 items-center">
+                                            <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center text-blue-400">
+                                                {listing.type === 'Hotel' ? <Calendar size={24} /> : listing.type === 'Restaurant' ? <Users size={24} /> : <MapPin size={24} />}
+                                            </div>
+                                            <div>
+                                                <h4 className="text-lg font-bold">{listing.name}</h4>
+                                                <p className="text-sm text-gray-500">{listing.city} • {listing.type}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-6">
+                                            <div className="text-right">
+                                                <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">Starting at</p>
+                                                <p className="text-xl font-black text-green-400">₹{listing.price.toLocaleString()}</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => handleEditListing(listing)}
+                                                className="p-3 bg-white/5 hover:bg-blue-500/20 text-gray-400 hover:text-blue-400 rounded-xl transition-all"
+                                            >
+                                                <Edit3 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <AnimatePresence>
+                                {editingListing && (
+                                    <motion.div 
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6"
+                                    >
+                                        <motion.div 
+                                            initial={{ scale: 0.9, y: 20 }}
+                                            animate={{ scale: 1, y: 0 }}
+                                            className="bg-gray-800 border border-white/10 p-8 rounded-3xl w-full max-w-lg shadow-2xl"
+                                        >
+                                            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                                                <Edit3 className="text-blue-400" /> Edit Listing
+                                            </h3>
+                                            <form onSubmit={handleSaveEdit} className="space-y-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-bold text-gray-500 uppercase">Price (₹)</label>
+                                                    <input 
+                                                        type="number" 
+                                                        value={editingListing.price}
+                                                        onChange={(e) => setEditingListing({...editingListing, price: parseInt(e.target.value)})}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-bold text-gray-500 uppercase">Description</label>
+                                                    <textarea 
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500 h-32"
+                                                        placeholder="Update listing description..."
+                                                    />
+                                                </div>
+                                                <div className="flex gap-4 mt-8">
+                                                    <button 
+                                                        type="button"
+                                                        onClick={() => setEditingListing(null)}
+                                                        className="flex-1 px-6 py-4 bg-gray-700 rounded-2xl font-bold hover:bg-gray-600 transition-all text-sm"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button 
+                                                        type="submit"
+                                                        className="flex-1 px-6 py-4 bg-blue-600 rounded-2xl font-bold hover:bg-blue-700 transition-all text-sm flex items-center justify-center gap-2"
+                                                    >
+                                                        <Save size={18} /> Save Changes
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </motion.div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    )}
+
+                    {/* PAYMENTS TAB */}
+                    {activeTab === 'payments' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="bg-gray-800 p-8 rounded-3xl border border-white/10 space-y-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-400">
+                                        <Banknote size={32} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold">Bank Account Details</h3>
+                                        <p className="text-gray-500 text-sm italic">Where you receive your payouts</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Bank Name</label>
+                                        <input 
+                                            type="text" name="bankName" value={paymentInfo.bankName} onChange={handlePaymentUpdate}
+                                            className="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Account Number</label>
+                                        <input 
+                                            type="text" name="accountNumber" value={paymentInfo.accountNumber} onChange={handlePaymentUpdate}
+                                            className="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">IFSC Code</label>
+                                        <input 
+                                            type="text" name="ifsc" value={paymentInfo.ifsc} onChange={handlePaymentUpdate}
+                                            className="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                        />
+                                    </div>
+                                    <button className="w-full py-4 bg-white/5 hover:bg-white/10 rounded-2xl font-bold transition-all border border-white/10">
+                                        Update Bank Info
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-800 p-8 rounded-3xl border border-white/10 flex flex-col items-center justify-center space-y-8 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-8 opacity-5 -mr-10 -mt-10 group-hover:scale-110 transition-transform duration-700">
+                                    <QrCode size={200} />
+                                </div>
+                                
+                                <div className="text-center">
+                                    <h3 className="text-xl font-bold mb-2">Payment QR Code</h3>
+                                    <p className="text-gray-500 text-sm">Scan to pay directly to vendor account</p>
+                                </div>
+
+                                <div className="bg-white p-4 rounded-3xl shadow-2xl relative z-10">
+                                    <img src={paymentInfo.qrPlaceholder} alt="QR Code" className="w-48 h-48" />
+                                </div>
+
+                                <button className="flex items-center gap-3 px-8 py-3 bg-blue-600 rounded-full font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30">
+                                    <PlusCircle size={18} /> Generate New QR
+                                </button>
+                                
+                                <p className="text-[10px] text-gray-500 uppercase font-black tracking-[4px] mt-4">Verified by THE RINGMASTER Pay</p>
+                            </div>
                         </div>
                     )}
 

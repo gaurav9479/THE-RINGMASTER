@@ -1,55 +1,39 @@
-import React, { useState } from 'react';
-import { ShoppingCart, Star, MapPin, X, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShoppingCart, Star, MapPin, X, Check, Search, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import API, { searchByCity } from '../utils/axios.auth';
 
-// Mock Data
-const VENDOR_ITEMS = [
-    {
-        id: 1,
-        name: "Grand Royal Hotel",
-        type: "Hotel",
-        rating: 4.8,
-        location: "Mumbai, India",
-        price: 12000,
-        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1000",
-        description: "Luxury stay with ocean view and premium amenities."
-    },
-    {
-        id: 2,
-        name: "Spice Garden",
-        type: "Restaurant",
-        rating: 4.5,
-        location: "Delhi, India",
-        price: 2500,
-        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1000",
-        description: "Authentic Indian cuisine with a modern twist."
-    },
-    {
-        id: 3,
-        name: "Mountain Retreat",
-        type: "Hotel",
-        rating: 4.9,
-        location: "Manali, India",
-        price: 8500,
-        image: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1000",
-        description: "Cozy wooden cottages amidst snow-capped peaks."
-    },
-    {
-        id: 4,
-        name: "Ocean Blue Bistro",
-        type: "Restaurant",
-        rating: 4.3,
-        location: "Goa, India",
-        price: 1800,
-        image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=1000",
-        description: "Fresh seafood by the beach."
-    }
-];
+// Local fallback data removed in favor of real backend fetching
 
 function ManualExplorer() {
+    const [items, setItems] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('Mumbai');
+    const [loading, setLoading] = useState(false);
     const [cart, setCart] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [purchaseSuccess, setPurchaseSuccess] = useState(false);
+
+    const fetchItems = async (city) => {
+        setLoading(true);
+        try {
+            const response = await searchByCity(city);
+            const data = response.data.data;
+            const combined = [
+                ...(data.hotels || []).map(h => ({ ...h, type: 'Hotel', id: h._id })),
+                ...(data.resturant || []).map(r => ({ ...r, type: 'Restaurant', id: r._id })),
+                ...(data.events || []).map(e => ({ ...e, type: 'Event', id: e._id }))
+            ];
+            setItems(combined);
+        } catch (error) {
+            console.error("Error fetching items:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchItems(searchTerm);
+    }, []);
 
     const addToCart = (item) => {
         if (!cart.find(i => i.id === item.id)) {
@@ -61,16 +45,32 @@ function ManualExplorer() {
         setCart(cart.filter(item => item.id !== itemId));
     };
 
-    const handleBuyNow = () => {
-        // Simulate Purchase
-        setPurchaseSuccess(true);
-        setTimeout(() => {
-            setPurchaseSuccess(false);
-            setCart([]);
-            setIsCartOpen(false);
-            // Here you would typically save to "My Trips" or backend
-            console.log("Purchased items:", cart);
-        }, 2000);
+    const handleBuyNow = async () => {
+        setLoading(true);
+        try {
+            // Process each item in the cart through the booking API
+            const bookingPromises = cart.map(item => 
+                API.post("/bookings/create", {
+                    itemId: item.id,
+                    itemType: item.type === 'Restaurant' ? 'Resturant' : item.type === 'Hotel' ? 'Hotel' : 'Events',
+                    totalPrice: item.price || item.cost || 0
+                })
+            );
+
+            await Promise.all(bookingPromises);
+
+            setPurchaseSuccess(true);
+            setTimeout(() => {
+                setPurchaseSuccess(false);
+                setCart([]);
+                setIsCartOpen(false);
+            }, 2000);
+        } catch (error) {
+            console.error("Purchase failed:", error);
+            alert("Booking failed. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
@@ -79,74 +79,105 @@ function ManualExplorer() {
         <div className="p-8 max-w-7xl mx-auto relative min-h-screen">
             
             {/* Header */}
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
                 <div>
-                    <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-                        Explore & Book
+                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-ringmaster-gold via-white to-ringmaster-gold tracking-tighter uppercase italic">
+                        🎩 The Grand Explorer
                     </h1>
-                    <p className="text-gray-400 mt-1">Discover places and add them to your trip.</p>
+                    <p className="text-gray-500 mt-2 font-medium">Curate your perfect journey from our handpicked collections.</p>
                 </div>
                 
-                <button 
-                    onClick={() => setIsCartOpen(true)}
-                    className="relative p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
-                >
-                    <ShoppingCart className="text-white" />
-                    {cart.length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                            {cart.length}
-                        </span>
-                    )}
-                </button>
+                <div className="flex items-center gap-4 w-full md:w-auto">
+                    <div className="relative flex-1 md:w-64">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+                        <input 
+                            type="text" 
+                            placeholder="Search by city..." 
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && fetchItems(searchTerm)}
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-white outline-none focus:ring-2 focus:ring-ringmaster-gold transition-all"
+                        />
+                    </div>
+                    
+                    <button 
+                        onClick={() => setIsCartOpen(true)}
+                        className="relative p-4 bg-ringmaster-gold/10 hover:bg-ringmaster-gold/20 rounded-2xl border border-ringmaster-gold/20 transition-all group"
+                    >
+                        <ShoppingCart className="text-ringmaster-gold group-hover:scale-110 transition-transform" />
+                        {cart.length > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-lg shadow-red-500/40">
+                                {cart.length}
+                            </span>
+                        )}
+                    </button>
+                </div>
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {VENDOR_ITEMS.map((item) => (
-                    <motion.div 
-                        key={item.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:scale-[1.02] transition-transform duration-300"
-                    >
-                        <div className="h-48 overflow-hidden relative">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                            <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md text-sm text-yellow-400 flex items-center gap-1">
-                                <Star size={14} fill="currentColor" /> {item.rating}
+            <div className="relative">
+                {loading && !purchaseSuccess && (
+                    <div className="absolute inset-0 bg-transparent backdrop-blur-sm z-10 flex items-center justify-center min-h-[400px]">
+                        <Loader2 className="text-ringmaster-gold w-12 h-12 animate-spin" />
+                    </div>
+                )}
+                
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ${loading ? 'opacity-30' : ''} transition-opacity duration-300`}>
+                    {items.length > 0 ? items.map((item) => (
+                        <motion.div 
+                            key={item.id}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            whileHover={{ y: -10 }}
+                            className="group bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-ringmaster-gold/30 hover:shadow-2xl hover:shadow-ringmaster-gold/5"
+                        >
+                            <div className="h-64 overflow-hidden relative">
+                                <img src={item.image || "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=1000"} alt={item.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                <div className="absolute top-6 right-6 bg-black/60 backdrop-blur-xl px-4 py-2 rounded-full text-xs font-black text-ringmaster-gold flex items-center gap-2 border border-white/10">
+                                    <Star size={14} fill="currentColor" stroke="none" /> {(item.rating || 4.5).toFixed(1)}
+                                </div>
+                                <div className="absolute bottom-6 left-6 flex gap-2">
+                                    <span className={`text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border ${item.type === 'Hotel' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : item.type === 'Restaurant' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : 'bg-purple-500/20 text-purple-400 border-purple-500/30'}`}>
+                                        {item.type}
+                                    </span>
+                                </div>
                             </div>
+                            
+                            <div className="p-8">
+                                <h3 className="text-2xl font-black text-white mb-2 truncate group-hover:text-ringmaster-gold transition-colors">{item.name || item.place}</h3>
+                                
+                                <div className="flex items-center text-gray-500 text-sm mb-6 font-bold uppercase tracking-wider">
+                                    <MapPin size={14} className="mr-2 text-ringmaster-gold" /> {item.address || item.city}
+                                </div>
+                                
+                                <p className="text-gray-400 text-sm mb-8 line-clamp-2 leading-relaxed font-medium">{item.description || "A premium experience curated by The Ringmaster."}</p>
+                                
+                                <div className="flex justify-between items-center pt-6 border-t border-white/5">
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Starting At</p>
+                                        <span className="text-white font-black text-2xl tracking-tighter">₹{(item.price || item.cost || 5000).toLocaleString()}</span>
+                                    </div>
+                                    <button 
+                                        onClick={() => addToCart(item)}
+                                        disabled={cart.find(i => i.id === item.id)}
+                                        className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${
+                                            cart.find(i => i.id === item.id)
+                                                ? 'bg-green-500/10 text-green-500 border border-green-500/20 cursor-default'
+                                                : 'bg-white text-black hover:bg-ringmaster-gold hover:text-black shadow-lg hover:shadow-ringmaster-gold/30'
+                                        }`}
+                                    >
+                                        {cart.find(i => i.id === item.id) ? 'Added' : 'Add to Trip'}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )) : (
+                        <div className="col-span-full py-20 text-center">
+                            <h3 className="text-2xl font-bold text-gray-600">No treasures found in this city.</h3>
+                            <p className="text-gray-700 mt-2">Try searching for "Mumbai" or "Goa".</p>
                         </div>
-                        
-                        <div className="p-5">
-                            <div className="flex justify-between items-start mb-2">
-                                <h3 className="text-xl font-semibold text-white">{item.name}</h3>
-                                <span className={`text-xs px-2 py-1 rounded-full ${item.type === 'Hotel' ? 'bg-blue-500/20 text-blue-300' : 'bg-orange-500/20 text-orange-300'}`}>
-                                    {item.type}
-                                </span>
-                            </div>
-                            
-                            <div className="flex items-center text-gray-400 text-sm mb-4">
-                                <MapPin size={14} className="mr-1" /> {item.location}
-                            </div>
-                            
-                            <p className="text-gray-400 text-sm mb-4 line-clamp-2">{item.description}</p>
-                            
-                            <div className="flex justify-between items-center mt-4">
-                                <span className="text-white font-bold text-lg">₹{item.price.toLocaleString()}</span>
-                                <button 
-                                    onClick={() => addToCart(item)}
-                                    disabled={cart.find(i => i.id === item.id)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                                        cart.find(i => i.id === item.id)
-                                            ? 'bg-green-500/20 text-green-400 cursor-default'
-                                            : 'bg-purple-600 hover:bg-purple-700 text-white'
-                                    }`}
-                                >
-                                    {cart.find(i => i.id === item.id) ? 'Added' : 'Add to Cart'}
-                                </button>
-                            </div>
-                        </div>
-                    </motion.div>
-                ))}
+                    )}
+                </div>
             </div>
 
             {/* Cart Drawer - Simplified using fixed positioning */}
