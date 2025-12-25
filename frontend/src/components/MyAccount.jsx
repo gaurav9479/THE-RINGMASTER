@@ -1,11 +1,16 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { User, MapPin, Award, Star, Settings, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, MapPin, Award, Star, Settings, ChevronRight, Loader2, Calendar } from 'lucide-react';
+import API from '../utils/axios.auth';
 
 function MyAccount() {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+
   const user = {
-    fullname: "Gaurav Prajapati",
-    username: "@gaurav9479",
+    fullname: storedUser.username || "Gaurav Prajapati",
+    username: `@${storedUser.username || 'gaurav9479'}`,
     level: 12,
     xp: 2450,
     nextLevelXp: 3000,
@@ -22,6 +27,22 @@ function MyAccount() {
     { title: "Review Master", desc: "Left 10 reviews", icon: <Star className="text-yellow-400" /> },
     { title: "Eco-Traveler", desc: "Chose 5 green hotels", icon: <Award className="text-green-400" /> }
   ];
+
+  const fetchUserBookings = async () => {
+    setLoading(true);
+    try {
+      const response = await API.get("/bookings/user");
+      setBookings(response.data.data);
+    } catch (error) {
+      console.error("Error fetching user bookings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserBookings();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-950 text-white p-6 md:p-12 pt-24">
@@ -107,19 +128,38 @@ function MyAccount() {
           </section>
 
           <section>
-            <h3 className="text-xl font-bold mb-6">Upcoming Reservations</h3>
+            <h3 className="text-xl font-bold mb-6 italic">🎩 Upcoming Reservations</h3>
             <div className="bg-gray-900 border border-white/5 rounded-3xl p-6 flex flex-col gap-6">
-               <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-blue-600 p-3 rounded-2xl">🌍</div>
-                    <div>
-                      <div className="font-bold">Bali Expedition</div>
-                      <div className="text-xs text-gray-500">March 12 - 19, 2025</div>
-                    </div>
-                  </div>
-                  <ChevronRight size={20} className="text-gray-500" />
-               </div>
-               <button className="text-center text-purple-400 text-sm font-bold hover:underline">View All Trips</button>
+               {loading ? (
+                 <div className="flex justify-center p-8">
+                   <Loader2 className="animate-spin text-purple-500" />
+                 </div>
+               ) : bookings.length > 0 ? (
+                 bookings.map((booking) => (
+                   <div key={booking._id} className="flex items-center justify-between p-5 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5 group">
+                      <div className="flex items-center gap-5">
+                        <div className="bg-gradient-to-br from-purple-600 to-blue-600 p-3 rounded-2xl shadow-lg ring-1 ring-white/20">
+                           {booking.itemType === 'Hotel' ? <MapPin size={24} /> : <Calendar size={24} />}
+                        </div>
+                        <div>
+                          <div className="font-bold text-lg">{booking.item?.name || booking.item?.place || "Trip Item"}</div>
+                          <div className="text-xs text-gray-500 font-medium uppercase tracking-widest mt-1">
+                            {new Date(booking.bookingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm font-black text-purple-400">₹{booking.totalPrice?.toLocaleString()}</span>
+                        <ChevronRight size={20} className="text-gray-600 group-hover:text-white transition-colors" />
+                      </div>
+                   </div>
+                 ))
+               ) : (
+                 <div className="text-center py-10 text-gray-600">
+                   <p className="font-medium">No reservations found yet.</p>
+                   <button className="text-purple-500 text-sm font-bold mt-2 hover:underline">Start Exploring</button>
+                 </div>
+               )}
             </div>
           </section>
 
