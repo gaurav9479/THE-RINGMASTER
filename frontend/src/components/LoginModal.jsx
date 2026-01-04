@@ -18,8 +18,8 @@ function LoginModal() {
         setError('');
         try{
             const {data} = await loginUser({email,password});
-            localStorage.setItem("accessToken", data.accessToken);
-            localStorage.setItem("refreshToken", data.refreshToken);
+            localStorage.setItem("accessToken", data.accesstoken);
+            localStorage.setItem("refreshToken", data.refreshtoken);
             login(data.user);
             setIsLoginOpen(false);
 
