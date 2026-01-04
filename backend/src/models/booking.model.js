@@ -15,7 +15,7 @@ const bookingSchema = new Schema(
         itemType: {
             type: String,
             required: true,
-            enum: ['Hotel', 'Resturant', 'Events']
+            enum: ['Hotel', 'Restaurant', 'Events'] // Fixed typo: Resturant -> Restaurant
         },
         status: {
             type: String,
@@ -33,6 +33,12 @@ const bookingSchema = new Schema(
     },
     { timestamps: true }
 );
+
+// Database indexes for performance
+bookingSchema.index({ user: 1, createdAt: -1 });
+bookingSchema.index({ item: 1, itemType: 1 });
+bookingSchema.index({ status: 1 });
+bookingSchema.index({ user: 1, status: 1 });
 
 const Booking = mongoose.model("Booking", bookingSchema);
 export default Booking;

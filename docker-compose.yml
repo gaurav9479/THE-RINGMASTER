@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ringmaster-backend
+    ports:
+      - "1234:1234"
+    environment:
+      - NODE_ENV=production
+      - PORT=1234
+      - MONGODB_URL=mongodb://mongodb:27017/ringmaster
+      - CORS_ORIGIN=http://localhost:3000
+      - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - ACCESS_TOKEN_EXPIRY=1d
+      - REFRESH_TOKEN_EXPIRY=7d
+      - OPEN_WHEATHER_API_KEY=${OPEN_WHEATHER_API_KEY}
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1234/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ringmaster-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ringmaster-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:1234/api/v1
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - ringmaster-network
+
+  # Python AI Agent
+  python-agent:
+    build:
+      context: ./python_agent
+      dockerfile: Dockerfile
+    container_name: ringmaster-python-agent
+    ports:
+      - "8001:8001"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/ringmaster
+      - BACKEND_API_URL=http://backend:1234/api/v1
+      - OPENWEATHER_API_KEY=${OPEN_WHEATHER_API_KEY}
+    depends_on:
+      - mongodb
+      - backend
+    restart: unless-stopped
+    networks:
+      - ringmaster-network
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: ringmaster-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    networks:
+      - ringmaster-network
+
+networks:
+  ringmaster-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

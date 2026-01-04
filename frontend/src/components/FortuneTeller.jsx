@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Zap, Moon, Sun, Ghost } from 'lucide-react';
 
 const FortuneTeller = () => {
     const [fortune, setFortune] = useState(null);
     const [isThinking, setIsThinking] = useState(false);
+    const timeoutRef = useRef(null);
 
     const fortunes = [
         { text: "A hidden gem in the mountains awaits your discovery.", icon: <Sun className="text-yellow-400" /> },
@@ -15,10 +16,19 @@ const FortuneTeller = () => {
         { text: "Your next flight will have an empty seat beside you.", icon: <Zap className="text-green-400" /> }
     ];
 
+    // Cleanup timeout on unmount to prevent memory leak
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
+
     const getFortune = () => {
         setIsThinking(true);
         setFortune(null);
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
             const random = fortunes[Math.floor(Math.random() * fortunes.length)];
             setFortune(random);
             setIsThinking(false);

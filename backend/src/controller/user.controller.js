@@ -28,11 +28,11 @@ const registerUser = asynchandler(async (req, res) => {
     if ([UserName, email, fullname, Phone, password].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "all fields are required")
     }
-    const exsisteduser = await User.findOne({
+    const existedUser = await User.findOne({
         $or: [{ email }, { Phone }]
     })
-    if (exsisteduser) {
-        throw new ApiError(409, "user already exsist")
+    if (existedUser) {
+        throw new ApiError(409, "User already exists")
     }
     const user = await User.create({
         UserName,
@@ -49,7 +49,7 @@ const registerUser = asynchandler(async (req, res) => {
     return res
         .status(201)
 
-        .json(new ApiResponse(200, createdUser, "user created sucessfully"))
+        .json(new ApiResponse(200, createdUser, "User created successfully"))
 })
 const loginUser = asynchandler(async (req, res) => {
     const { email, password } = req.body;
@@ -58,7 +58,7 @@ const loginUser = asynchandler(async (req, res) => {
     }
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
-        throw new ApiError(404, "user not exsist")
+        throw new ApiError(404, "User does not exist")
     }
     const isPasswordvalid = await user.isPasswordCorrect(password);
     if (!isPasswordvalid) {
@@ -71,7 +71,7 @@ const loginUser = asynchandler(async (req, res) => {
         .status(200)
         .cookie("accesstoken", accesstoken, options)
         .cookie("refreshtoken", refreshtoken, options)
-        .json(new ApiResponse(200, { user: loggedInUser, accesstoken, refreshtoken }, "user loggedin sucess fully"))
+        .json(new ApiResponse(200, { user: loggedInUser, accesstoken, refreshtoken }, "User logged in successfully"))
 
 })
 const logoutUser = asynchandler(async (req, res) => {

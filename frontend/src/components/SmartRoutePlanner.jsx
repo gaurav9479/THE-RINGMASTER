@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../utils/axios.auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Navigation, Cloud, Thermometer, Wind, Droplets, Calendar, ArrowRight, Loader2, Map as MapIcon } from 'lucide-react';
 import MagicPackingList from './MagicPackingList';
@@ -33,14 +33,17 @@ const SmartRoutePlanner = () => {
         setError(null);
         try {
             // 1. Fetch Route (From Current Location Mock/Real to Destination)
-            const routeRes = await axios.post('/api/map/route', {
-                origin: "Mumbai", // Mocking current location for now
-                destination: destination,
-                mode: "driving"
+            // Changed to GET request as route fetching is a read operation
+            const routeRes = await API.get('/map/route', {
+                params: {
+                    origin: "Mumbai", // Mocking current location for now
+                    destination: destination,
+                    mode: "driving"
+                }
             });
 
             // 2. Fetch Weather Forecast
-            const weatherRes = await axios.get('/api/wheather/forecast', {
+            const weatherRes = await API.get('/weather/forecast', {
                 params: {
                     destination: destination,
                     startDate: dates.start,

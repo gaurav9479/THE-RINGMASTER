@@ -22,16 +22,36 @@ import hotelRoutes from "./Routes/hotel.routes.js"
 import eventRoutes from "./Routes/event.routes.js"
 import aiRoutes from "./Routes/ai.routes.js"
 import bookingRoutes from "./Routes/booking.routes.js"
+import reviewRoutes from "./Routes/review.routes.js"
+import adminRoutes from "./Routes/admin.routes.js"
 
 app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/wheather", weatherRoutes);
+app.use("/api/v1/weather", weatherRoutes);  // Fixed typo: wheather -> weather
+app.use("/api/v1/wheather", weatherRoutes); // Keep old route for backward compatibility
 app.use("/api/v1/map", TravelRoutes);
 app.use("/api/v1/search", cityRoutes);
 app.use("/api/v1/hotels", hotelRoutes);
 app.use("/api/v1/events", eventRoutes);
 app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/bookings", bookingRoutes);
+app.use("/api/v1/reviews", reviewRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
+// Global error handler - must be after all routes
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
 
+    // Log error for debugging (replace with proper logger in production)
+    console.error(`[ERROR] ${statusCode}: ${message}`, err.stack);
+
+    res.status(statusCode).json({
+        success: false,
+        statusCode,
+        message,
+        errors: err.errors || [],
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
+});
 
 export { app }

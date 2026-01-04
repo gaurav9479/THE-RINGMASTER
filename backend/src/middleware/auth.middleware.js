@@ -26,7 +26,7 @@ export const verifyJWT = asynchandler(async (req, __, next) => {
 export const verifyRole = (roles) => {
     return (req, res, next) => {
         if (!req.user || !roles.includes(req.user.role)) {
-            throw new ApiError(403, "Access denied. Insufficient permissions.");
+            return next(new ApiError(403, "Access denied. Insufficient permissions."));
         }
         next();
     };

@@ -2,5 +2,6 @@ import { Router } from "express";
 import { getTravelRoute } from "../controller/map.controller.js";
 
 const router = Router()
-router.route("/route").post(getTravelRoute)
+// Changed from POST to GET - fetching route info is a read operation
+router.route("/route").get(getTravelRoute)
 export default router

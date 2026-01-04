@@ -6,33 +6,35 @@ import { useNavigate } from "react-router-dom";
 
 
 function LoginModal() {
-    const { isLoginOpen, setIsLoginOpen, setIsLoggedIn, setIsRegisterOpen } = useAuth();
+    const { isLoginOpen, setIsLoginOpen, login, setIsRegisterOpen } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    
+
     const handleSubmit = async(e) => {
         e.preventDefault();
+        setError('');
         try{
             const {data} = await loginUser({email,password});
-            console.log(`data sent ${data.user.fullname}`)
-            localStorage.setItem("token",data.token);
-            setIsLoggedIn(true);
+            localStorage.setItem("accessToken", data.accessToken);
+            localStorage.setItem("refreshToken", data.refreshToken);
+            login(data.user);
             setIsLoginOpen(false);
 
-            if (data.user.role === 'hotel_owner') {
-                navigate('/dashboard/hotel-owner');
-            } else if (data.user.role === 'event_organizer') {
-                navigate('/dashboard/event-organizer');
+            // Navigate based on role
+            if (data.user.role === 'admin') {
+                navigate('/admin');
+            } else if (data.user.role === 'hotel_owner' || data.user.role === 'event_organizer') {
+                navigate('/vendor-dashboard');
+            } else {
+                navigate('/dashboard');
             }
         }catch(err){
-            console.error("Login failed:", err.response?.data || err.message)
-            console.log("unable to get user")
+            console.error("Login failed:", err.response?.data || err.message);
+            setError(err.response?.data?.message || 'Login failed. Please try again.');
         }
-        
-        setIsLoggedIn(true);
-        setIsLoginOpen(false);
     }
     
     const switchToRegister = () => {
@@ -61,7 +63,13 @@ function LoginModal() {
                     <h2 className="text-2xl font-bold text-gray-800">Welcome Back</h2>
                     <p className="text-sm text-gray-600 mt-1">Login to continue</p>
                 </div>
-                
+
+                {error && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                        {error}
+                    </div>
+                )}
+
                 <div className="space-y-4">
                     <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />

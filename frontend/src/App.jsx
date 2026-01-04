@@ -1,11 +1,11 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
-import { AuthProvider } from "./Context/AuthContext.jsx";
 import { DestinationProvider } from "./Context/PlaceContext.jsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MyAccount from "./components/MyAccount.jsx"
 import Layout from "./components/Layout.jsx";
 import Home from "./components/Home.jsx";
@@ -14,23 +14,32 @@ import AiPlanner from "./components/AiPlanner.jsx";
 import VendorDashboard from "./components/VendorDashboard.jsx";
 import ManualExplorer from "./components/ManualExplorer.jsx";
 import SmartRoutePlanner from "./components/SmartRoutePlanner.jsx";
+import AdminDashboard from "./components/AdminDashboard.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />, 
+    element: <Layout />,
     children: [
       {
-        index: true, 
-        element: <Home />, 
+        index: true,
+        element: <Home />,
       },
       {
         path: "dashboard",
-        element: <UserDashboard />,
+        element: (
+          <ProtectedRoute>
+            <UserDashboard />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "ai-planner",
-        element: <AiPlanner />,
+        element: (
+          <ProtectedRoute>
+            <AiPlanner />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "manual-explorer",
@@ -41,23 +50,49 @@ const router = createBrowserRouter([
         element: <SmartRoutePlanner />,
       },
       {
+        path: "my-account",
+        element: (
+          <ProtectedRoute>
+            <MyAccount />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        // Keep old route for backward compatibility
         path: "MyAccount",
-        element: <MyAccount />,
+        element: (
+          <ProtectedRoute>
+            <MyAccount />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "vendor-dashboard",
-        element: <VendorDashboard />,
+        element: (
+          <ProtectedRoute allowedRoles={['hotel_owner', 'event_organizer', 'admin']}>
+            <VendorDashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "admin",
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
 ]);
 
 function App() {
+  // Note: AuthProvider is in main.jsx to avoid duplicate wrapping
   return (
-    <AuthProvider>
+    <ErrorBoundary>
       <DestinationProvider>
         <RouterProvider router={router} />
-        
+
         {/* Toast Notifications */}
         <ToastContainer
           position="top-right"
@@ -66,7 +101,7 @@ function App() {
           theme="light"
         />
       </DestinationProvider>
-    </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
