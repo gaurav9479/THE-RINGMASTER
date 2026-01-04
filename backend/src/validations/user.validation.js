@@ -54,7 +54,7 @@ export const registerSchema = Joi.object({
         }),
 
     role: Joi.string()
-        .valid('user', 'hotel_owner', 'event_organizer')
+        .valid('user', 'hotel_owner', 'event_organizer', 'admin')
         .default('user')
 });
 
