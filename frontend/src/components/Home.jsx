@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext.jsx';
-import { User, Store, ArrowRight, Star, Shield, Globe } from 'lucide-react';
+import { User, Store, ArrowRight, Star, Shield, Globe, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { loginUser } from '../utils/axios.auth';
+import { toast } from 'react-toastify';
 
 function Home() {
-    const { setIsLoginOpen, setIsRegisterOpen, isLoggedIn } = useAuth();
+    const { setIsLoginOpen, setIsRegisterOpen, isLoggedIn, login } = useAuth();
     const navigate = useNavigate();
-    
+    const [loadingDemo, setLoadingDemo] = useState(null);
+
     // Redirect to dashboard if already logged in (optional but good UX)
     React.useEffect(() => {
         if (isLoggedIn) {
@@ -17,6 +20,37 @@ function Home() {
 
     const openLogin = () => setIsLoginOpen(true);
     const openRegister = () => setIsRegisterOpen(true);
+
+    const handleDemoLogin = async (type) => {
+        const credentials = {
+            traveler: { email: 'test@test.com', password: 'Test@123' },
+            vendor: { email: 'vendor@test.com', password: 'Vendor@123' },
+            admin: { email: 'admin@test.com', password: 'Admin@123' }
+        };
+
+        setLoadingDemo(type);
+        try {
+            const { data } = await loginUser(credentials[type]);
+            localStorage.setItem('accessToken', data.accesstoken);
+            localStorage.setItem('refreshToken', data.refreshtoken);
+            login(data.user);
+            toast.success(`Logged in as ${type}!`);
+
+            // Navigate based on role
+            if (data.user.role === 'admin') {
+                navigate('/admin');
+            } else if (data.user.role === 'hotel_owner' || data.user.role === 'event_organizer') {
+                navigate('/vendor-dashboard');
+            } else {
+                navigate('/dashboard');
+            }
+        } catch (err) {
+            toast.error('Demo login failed. Please try manual login.');
+            console.error(err);
+        } finally {
+            setLoadingDemo(null);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-900 text-white overflow-x-hidden relative">
@@ -99,6 +133,65 @@ function Home() {
                                 className="flex-1 py-3 px-6 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/10 transition-all flex items-center justify-center gap-2"
                             >
                                 Submit Request <ArrowRight size={18} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Demo Accounts */}
+                <div className="mt-12 w-full max-w-4xl">
+                    <div className="bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-cyan-500/10 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+                        <h3 className="text-center text-lg font-semibold text-white mb-4 flex items-center justify-center gap-2">
+                            <span className="text-yellow-400">★</span> Quick Demo Login <span className="text-yellow-400">★</span>
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <button
+                                onClick={() => handleDemoLogin('traveler')}
+                                disabled={loadingDemo !== null}
+                                className="bg-white/5 rounded-xl p-4 border border-purple-500/30 hover:border-purple-500 hover:bg-purple-500/10 transition-all cursor-pointer text-left group disabled:opacity-50 disabled:cursor-wait"
+                            >
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-purple-400 font-semibold">Traveler</p>
+                                    {loadingDemo === 'traveler' ? (
+                                        <Loader2 size={16} className="animate-spin text-purple-400" />
+                                    ) : (
+                                        <ArrowRight size={16} className="text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    )}
+                                </div>
+                                <p className="text-gray-500 text-xs">test@test.com</p>
+                                <p className="text-gray-400 text-xs mt-1">Click to login instantly</p>
+                            </button>
+                            <button
+                                onClick={() => handleDemoLogin('vendor')}
+                                disabled={loadingDemo !== null}
+                                className="bg-white/5 rounded-xl p-4 border border-blue-500/30 hover:border-blue-500 hover:bg-blue-500/10 transition-all cursor-pointer text-left group disabled:opacity-50 disabled:cursor-wait"
+                            >
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-blue-400 font-semibold">Vendor</p>
+                                    {loadingDemo === 'vendor' ? (
+                                        <Loader2 size={16} className="animate-spin text-blue-400" />
+                                    ) : (
+                                        <ArrowRight size={16} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    )}
+                                </div>
+                                <p className="text-gray-500 text-xs">vendor@test.com</p>
+                                <p className="text-gray-400 text-xs mt-1">Click to login instantly</p>
+                            </button>
+                            <button
+                                onClick={() => handleDemoLogin('admin')}
+                                disabled={loadingDemo !== null}
+                                className="bg-white/5 rounded-xl p-4 border border-red-500/30 hover:border-red-500 hover:bg-red-500/10 transition-all cursor-pointer text-left group disabled:opacity-50 disabled:cursor-wait"
+                            >
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-red-400 font-semibold">Admin</p>
+                                    {loadingDemo === 'admin' ? (
+                                        <Loader2 size={16} className="animate-spin text-red-400" />
+                                    ) : (
+                                        <ArrowRight size={16} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    )}
+                                </div>
+                                <p className="text-gray-500 text-xs">admin@test.com</p>
+                                <p className="text-gray-400 text-xs mt-1">Click to login instantly</p>
                             </button>
                         </div>
                     </div>
