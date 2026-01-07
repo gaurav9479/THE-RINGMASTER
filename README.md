@@ -31,6 +31,12 @@ docker-compose.yml
 ---
 
 ## Tech Stack
+- Frameworks (at a glance)
+  - React (frontend UI)
+  - Express.js (Node.js backend)
+  - FastAPI (Python AI microservice)
+  - Tailwind CSS (styling)
+
 - Frontend:
   - React 19, Vite 7, React Router v7
   - Tailwind CSS v4 (`@tailwindcss/vite`), custom theme tokens (`src/index.css`)
