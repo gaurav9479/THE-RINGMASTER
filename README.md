@@ -147,7 +147,7 @@ OPEN_WHEATHER_API_KEY=your_openweather_api_key
 # Weather provider selection: openweather | openmeteo | nws
 WEATHER_PROVIDER=openmeteo
 # For NWS (weather.gov) you must set a descriptive User-Agent with contact
-NWS_USER_AGENT="RingmasterApp/1.0 (youremail@example.com)"
+NWS_USER_AGENT="RingmasterApp/1.0 (gauravshivmurat2@gmail.com)"
 
 # Optional ImageKit (if configured, uploads enabled)
 IMAGE_KIT_PUBLIC_KEY=
