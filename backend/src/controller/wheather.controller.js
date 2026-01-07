@@ -2,6 +2,12 @@ import axios from "axios";
 import { asynchandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import {
+    geocodeCity,
+    getOpenMeteoForecast,
+    getNwsForecast,
+    getOpenWeatherForecastByCity
+} from "../utils/weatherProvider.js";
 
 
 export const getWeatherForecast = asynchandler(async (req, res) => {
@@ -12,37 +18,32 @@ export const getWeatherForecast = asynchandler(async (req, res) => {
         throw new ApiError(400, "Destination, startDate, and endDate are required");
     }
 
-
-    const apiKey = process.env.OPEN_WHEATHER_API_KEY; // 
-    const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${destination}&appid=${apiKey}&units=metric`;
-
-    let weatherData;
+    const provider = (process.env.WEATHER_PROVIDER || "openweather").toLowerCase();
+    let formattedForecast = [];
     try {
-        const { data } = await axios.get(apiUrl);
-        weatherData = data;
+        if (provider === "openmeteo") {
+            const { lat, lon } = await geocodeCity(destination);
+            formattedForecast = await getOpenMeteoForecast(lat, lon, startDate, endDate);
+        } else if (provider === "nws" || provider === "weather.gov") {
+            const { lat, lon } = await geocodeCity(destination);
+            const ua = process.env.NWS_USER_AGENT || "RingmasterApp/1.0 (contact@invalid)";
+            formattedForecast = await getNwsForecast(lat, lon, startDate, endDate, ua);
+        } else {
+            const apiKey = process.env.OPEN_WHEATHER_API_KEY;
+            if (!apiKey) {
+                throw new ApiError(500, "OPEN_WHEATHER_API_KEY missing and WEATHER_PROVIDER not set to openmeteo/nws");
+            }
+            formattedForecast = await getOpenWeatherForecastByCity(destination, apiKey, startDate, endDate);
+        }
     } catch (error) {
-        throw new ApiError(500, "Failed to fetch weather data from API");
+        throw new ApiError(500, "Failed to fetch weather data from provider");
     }
-
-
-    const forecast = weatherData.list.filter((entry) => {
-        const entryDate = new Date(entry.dt_txt);
-        return entryDate >= new Date(startDate) && entryDate <= new Date(endDate);
-    });
-
-
-    const formattedForecast = forecast.map((f) => ({
-        date: f.dt_txt,
-        temperature: f.main.temp,
-        humidity: f.main.humidity,
-        weather: f.weather[0].description,
-    }));
 
     const response = {
         destination,
         startDate,
         endDate,
-        forecast: formattedForecast,
+        forecast: formattedForecast
     };
 
 

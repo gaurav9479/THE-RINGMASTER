@@ -5,6 +5,12 @@ import axios from "axios"
 import { asynchandler } from "../utils/AsyncHandler.js"
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import {
+    geocodeCity,
+    getOpenMeteoCurrent,
+    getNwsCurrent,
+    getOpenWeatherCurrentByCity
+} from "../utils/weatherProvider.js";
 
 // Escape special regex characters to prevent NoSQL injection
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -23,8 +29,23 @@ export const searchCity = asynchandler(async (req, res) => {
         Resturant.find({ address: { $regex: sanitizedDestination, $options: "i" } }).lean(),
         Event.find({ city: { $regex: sanitizedDestination, $options: "i" } }).lean(),
     ])
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${destination}&appid=${process.env.OPEN_WHEATHER_API_KEY}&units=metric`;
-    const { data: weather } = await axios.get(weatherUrl)
+    // Current weather via provider
+    let weather = null;
+    try {
+        const provider = (process.env.WEATHER_PROVIDER || "openweather").toLowerCase();
+        if (provider === "openmeteo") {
+            const { lat, lon } = await geocodeCity(destination);
+            weather = await getOpenMeteoCurrent(lat, lon);
+        } else if (provider === "nws" || provider === "weather.gov") {
+            const { lat, lon } = await geocodeCity(destination);
+            const ua = process.env.NWS_USER_AGENT || "RingmasterApp/1.0 (contact@invalid)";
+            weather = await getNwsCurrent(lat, lon, ua);
+        } else {
+            weather = await getOpenWeatherCurrentByCity(destination, process.env.OPEN_WHEATHER_API_KEY);
+        }
+    } catch (e) {
+        weather = null;
+    }
     const resultData = {
         destination,
         results: {
