@@ -8,7 +8,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const OSRM_SERVER = "http://router.project-osrm.org";
 
 export const getTravelRoute = asynchandler(async (req, res) => {
-    const { origin, destination, mode } = req.body;
+    // Read from query for GET requests
+    const { origin, destination, mode } = req.query;
 
 
     if (!origin || !destination) {

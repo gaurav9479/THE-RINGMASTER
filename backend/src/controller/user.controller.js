@@ -25,7 +25,7 @@ const generateAccessRefreshToken = async (userId) => {
 const registerUser = asynchandler(async (req, res) => {
     const { UserName, email, fullname, Phone, password, role } = req.body
     console.log("getting info", req.body)
-    if ([UserName, email, fullname, Phone, password].some((field) => field?.trim() === "")) {
+    if ([UserName, email, fullname, Phone, password].some((field) => !field || String(field).trim() === "")) {
         throw new ApiError(400, "all fields are required")
     }
     const existedUser = await User.findOne({

@@ -23,9 +23,16 @@ export const RegisterUser = async (userData) => {
 export const loginUser = async (userData) => {
   try {
     const { data } = await API.post("/user/login", userData);
-
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    // Backend returns ApiResponse { data: { user, accesstoken, refreshtoken }, ... }
+    const payload = data?.data || {};
+    const accessToken = payload.accesstoken;
+    const user = payload.user;
+    if (accessToken) {
+      localStorage.setItem("token", accessToken);
+    }
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    }
     return data;
   } catch (error) {
     throw error.response?.data?.message || "Login failed";
